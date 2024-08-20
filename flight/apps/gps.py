@@ -8,6 +8,7 @@ The GPS receiver provides the satellite's position and velocity in ECEF coordina
 """
 import struct
 
+
 class GPS:
     # Mock data for message ID 0xA8 (NAVIGATION DATA MESSAGE)
     _MOCK_DATA = (

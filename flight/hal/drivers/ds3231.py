@@ -47,6 +47,7 @@ Implementation Notes
 """
 from adafruit_bus_device.i2c_device import I2CDevice
 from adafruit_register import i2c_bcd_alarm, i2c_bcd_datetime, i2c_bit, i2c_bits
+from hal.drivers.middleware.generic_driver import Driver
 
 try:
     # Used only for typing
@@ -62,7 +63,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_DS3231.git"
 
 
 # pylint: disable-msg=too-few-public-methods
-class DS3231:
+class DS3231(Driver):
     """Interface to the DS3231 RTC.
 
     :param ~busio.I2C i2c: The I2C bus the device is connected to
@@ -138,6 +139,7 @@ class DS3231:
 
     def __init__(self, i2c, address) -> None:
         self.i2c_device = I2CDevice(i2c, address)
+        super().__init__()
 
     @property
     def datetime(self) -> struct_time:

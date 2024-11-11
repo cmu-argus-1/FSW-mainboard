@@ -38,14 +38,9 @@ class Task(TemplateTask):
             if not DH.data_process_exists("imu"):
                 DH.register_data_process("imu", "Lfffffffff", True, data_limit=100000, write_interval=5)
 
-            if SATELLITE.IMU_NAME == "BNO08X":
-                accel = SATELLITE.IMU.acceleration
-                mag = SATELLITE.IMU.magnetic
-                gyro = SATELLITE.IMU.gyro
-            elif SATELLITE.IMU_NAME == "BMX160":
-                accel = SATELLITE.IMU.accel()
-                mag = SATELLITE.IMU.mag()
-                gyro = SATELLITE.IMU.gyro()
+            accel = SATELLITE.IMU.accel()
+            mag = SATELLITE.IMU.mag()
+            gyro = SATELLITE.IMU.gyro()
 
             # Replace data in the pre-allocated list
             self.log_data[IMU_IDX.TIME_IMU] = int(time.time())

@@ -108,3 +108,17 @@ class Task(TemplateTask):
                         f"Radio Voltage: {self.log_data[EPS_IDX.RF_LDO_OUTPUT_VOLTAGE]} mV, "
                         + f"Radio Current: {self.log_data[EPS_IDX.RF_LDO_OUTPUT_CURRENT]} mA"
                     )
+                elif key == "TORQUE_YP":
+                    self.read_vc(SATELLITE.POWER_MONITORS[key], EPS_IDX.YP_COIL_VOLTAGE, EPS_IDX.YP_COIL_CURRENT)
+                    self.log_info(
+                        f"Torque YP Voltage: {self.log_data[EPS_IDX.YP_COIL_VOLTAGE]} mV, "
+                        + f"Torque YP Current: {self.log_data[EPS_IDX.YP_COIL_CURRENT]} mA"
+                    )
+                elif key == "SOLAR_YP":
+                    self.read_vc(
+                        SATELLITE.POWER_MONITORS[key], EPS_IDX.YP_SOLAR_CHARGE_VOLTAGE, EPS_IDX.YP_SOLAR_CHARGE_CURRENT
+                    )
+                    self.log_info(
+                        f"Solar YP Voltage: {self.log_data[EPS_IDX.YP_SOLAR_CHARGE_VOLTAGE]} mV, "
+                        + f"Solar YP Current: {self.log_data[EPS_IDX.YP_SOLAR_CHARGE_CURRENT]} mA"
+                    )

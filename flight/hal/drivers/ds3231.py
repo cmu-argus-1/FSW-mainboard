@@ -51,10 +51,10 @@ from hal.drivers.middleware.generic_driver import Driver
 
 try:
     # Used only for typing
-    import typing  # pylint: disable=unused-import
+    import typing  # noqa F401
     from time import struct_time
 
-    from busio import I2C
+    from busio import I2C  # noqa F401
 except ImportError:
     pass
 

@@ -1,5 +1,6 @@
-from hal.configuration import SATELLITE
 import time
+
+from hal.configuration import SATELLITE
 
 # ---------- MAIN CODE STARTS HERE! ---------- ##
 

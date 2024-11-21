@@ -144,6 +144,7 @@ _ME_GET_CAL = const(0x01)
 BNO_REPORT_ACCELEROMETER = const(0x01)
 # Calibrated gyroscope (rad/s).
 BNO_REPORT_GYROSCOPE = const(0x02)
+BNO_REPORT_UNCAL_GYROSCOPE = const(0x07)
 # Magnetic field calibrated (in µTesla). The fully calibrated magnetic field measurement.
 BNO_REPORT_MAGNETOMETER = const(0x03)
 # Linear acceleration (m/s2). Acceleration of the device with gravity removed
@@ -160,7 +161,7 @@ BNO_REPORT_GEOMAGNETIC_ROTATION_VECTOR = const(0x09)
 # BNO_REPORT_STEP_COUNTER = const(0x11)
 
 # BNO_REPORT_RAW_ACCELEROMETER = const(0x14)
-# BNO_REPORT_RAW_GYROSCOPE = const(0x15)
+BNO_REPORT_RAW_GYROSCOPE = const(0x15)
 # BNO_REPORT_RAW_MAGNETOMETER = const(0x16)
 # BNO_REPORT_SHAKE_DETECTOR = const(0x19)
 
@@ -204,15 +205,16 @@ _REPORT_LENGTHS = {
     _TIMESTAMP_REBASE: 5,
 }
 # these raw reports require their counterpart to be enabled
-# _RAW_REPORTS = {
-#     BNO_REPORT_RAW_ACCELEROMETER: BNO_REPORT_ACCELEROMETER,
-#     BNO_REPORT_RAW_GYROSCOPE: BNO_REPORT_GYROSCOPE,
-#     BNO_REPORT_RAW_MAGNETOMETER: BNO_REPORT_MAGNETOMETER,
-# }
+_RAW_REPORTS = {
+    # BNO_REPORT_RAW_ACCELEROMETER: BNO_REPORT_ACCELEROMETER,
+    BNO_REPORT_RAW_GYROSCOPE: BNO_REPORT_GYROSCOPE,
+    # BNO_REPORT_RAW_MAGNETOMETER: BNO_REPORT_MAGNETOMETER,
+}
 _AVAIL_SENSOR_REPORTS = {
     BNO_REPORT_ACCELEROMETER: (_Q_POINT_8_SCALAR, 3, 10),
     # BNO_REPORT_GRAVITY: (_Q_POINT_8_SCALAR, 3, 10),
     BNO_REPORT_GYROSCOPE: (_Q_POINT_9_SCALAR, 3, 10),
+    BNO_REPORT_UNCAL_GYROSCOPE: (_Q_POINT_9_SCALAR, 6, 10),
     BNO_REPORT_MAGNETOMETER: (_Q_POINT_4_SCALAR, 3, 10),
     # BNO_REPORT_LINEAR_ACCELERATION: (_Q_POINT_8_SCALAR, 3, 10),
     # BNO_REPORT_ROTATION_VECTOR: (_Q_POINT_14_SCALAR, 4, 14),
@@ -223,7 +225,7 @@ _AVAIL_SENSOR_REPORTS = {
     # BNO_REPORT_STABILITY_CLASSIFIER: (1, 1, 6),
     # BNO_REPORT_ACTIVITY_CLASSIFIER: (1, 1, 16),
     # BNO_REPORT_RAW_ACCELEROMETER: (1, 3, 16),
-    # BNO_REPORT_RAW_GYROSCOPE: (1, 3, 16),
+    BNO_REPORT_RAW_GYROSCOPE: (1, 3, 16),
     # BNO_REPORT_RAW_MAGNETOMETER: (1, 3, 16),
 }
 _INITIAL_REPORTS = {
@@ -411,6 +413,7 @@ def _insert_command_request_report(
 
 
 def _report_length(report_id: int) -> int:
+    print(report_id)
     if report_id < 0xF0:  # it's a sensor report
         return _AVAIL_SENSOR_REPORTS[report_id][2]
 
@@ -656,7 +659,7 @@ class BNO085(Driver):  # pylint: disable=too-many-instance-attributes, too-many-
         axes in radians per second"""
         self._process_available_packets()
         try:
-            return self._readings[BNO_REPORT_GYROSCOPE]
+            return self._readings[BNO_REPORT_UNCAL_GYROSCOPE]
         except KeyError:
             raise RuntimeError("No gyro report found, is it enabled?") from None
 
@@ -736,14 +739,14 @@ class BNO085(Driver):  # pylint: disable=too-many-instance-attributes, too-many-
     #         raise RuntimeError("No raw acceleration report found, is it enabled?") from None
 
     # @property
-    # def raw_gyro(self) -> Optional[Tuple[int, int, int]]:
-    #     """Returns the sensor's raw, unscaled value from the gyro registers"""
-    #     self._process_available_packets()
-    #     try:
-    #         raw_gyro = self._readings[BNO_REPORT_RAW_GYROSCOPE]
-    #         return raw_gyro
-    #     except KeyError:
-    #         raise RuntimeError("No raw gyro report found, is it enabled?") from None
+    def raw_gyro(self) -> Optional[Tuple[int, int, int]]:
+        """Returns the sensor's raw, unscaled value from the gyro registers"""
+        self._process_available_packets()
+        try:
+            raw_gyro = self._readings[BNO_REPORT_RAW_GYROSCOPE]
+            return raw_gyro
+        except KeyError:
+            raise RuntimeError("No raw gyro report found, is it enabled?") from None
 
     # @property
     # def raw_magnetic(self) -> Optional[Tuple[int, int, int]]:
@@ -755,23 +758,23 @@ class BNO085(Driver):  # pylint: disable=too-many-instance-attributes, too-many-
     #     except KeyError:
     #         raise RuntimeError("No raw magnetic report found, is it enabled?") from None
 
-    def begin_calibration(self) -> None:
-        """Begin the sensor's self-calibration routine"""
-        # start calibration for accel, gyro, and mag
-        self._send_me_command(
-            [
-                1,  # calibrate accel
-                1,  # calibrate gyro
-                1,  # calibrate mag
-                _ME_CAL_CONFIG,
-                0,  # calibrate planar acceleration
-                0,  # 'on_table' calibration
-                0,  # reserved
-                0,  # reserved
-                0,  # reserved
-            ]
-        )
-        self._calibration_complete = False
+    # def begin_calibration(self) -> None:
+    #     """Begin the sensor's self-calibration routine"""
+    #     # start calibration for accel, gyro, and mag
+    #     self._send_me_command(
+    #         [
+    #             1,  # calibrate accel
+    #             1,  # calibrate gyro
+    #             1,  # calibrate mag
+    #             _ME_CAL_CONFIG,
+    #             0,  # calibrate planar acceleration
+    #             0,  # 'on_table' calibration
+    #             0,  # reserved
+    #             0,  # reserved
+    #             0,  # reserved
+    #         ]
+    #     )
+    #     self._calibration_complete = False
 
     @property
     def calibration_status(self) -> int:

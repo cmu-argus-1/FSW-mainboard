@@ -1,11 +1,5 @@
 import time
 
-# import circuitpython_csv as csv
-
-# from hal.configuration import SATELLITE
-
-# ---------- MAIN CODE STARTS HERE! ---------- ##
-
 # boot_errors = SATELLITE.boot_sequence()
 # print("ARGUS-2 booted.")
 # print(f"Boot Errors: {boot_errors}")
@@ -14,6 +8,13 @@ import busio
 import sdcardio
 import storage
 from hal.drivers.payload import PayloadUART
+
+# import circuitpython_csv as csv
+
+# from hal.configuration import SATELLITE
+
+# ---------- MAIN CODE STARTS HERE! ---------- ##
+
 
 # Initialize UART
 JET_UART_CTS = board.CLK1  # GPIO10

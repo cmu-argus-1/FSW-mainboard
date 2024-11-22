@@ -39,8 +39,20 @@ class PayloadUART(Driver):
     def reset_input_buffer(self) -> None:
         self.__uart.reset_input_buffer()
 
-    def checksum(self, data: bytearray) -> int:
-        return sum(data) % 256
+    def crc5(self, data):
+        crc = 0x1F
+        polynomial = 0x05
+
+        for byte in data:
+            crc ^= byte
+            for _ in range(8):
+                if crc & 0x10:
+                    crc = (crc << 1) ^ polynomial
+                else:
+                    crc <<= 1
+                crc &= 0x1F
+
+        return crc
 
     """
     ----------------------- HANDLER METHODS -----------------------
